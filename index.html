@@ -1,1 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Exam Countdown — Mathematics 4th Year</title>
+  <style>
+    :root{--accent:#1e88e5;--muted:#666}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,#fff,#fbfdff); color:#111}
+    .wrap{max-width:900px;margin:36px auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:28px;letter-spacing:1px}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:20px}
+    @media(max-width:880px){.grid{grid-template-columns:1fr}}
 
+    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 6px 20px rgba(20,30,40,0.06)}
+    .exam-list{display:flex;flex-direction:column;gap:10px}
+    .exam{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;border:1px solid #f0f3f7}
+    .exam .left{display:flex;align-items:center;gap:12px}
+    .date-bubble{min-width:110px;padding:6px 10px;border-radius:8px;font-weight:700;text-align:center;background:#fafafa;color:#222;border:1px solid #eee}
+    .title{font-weight:600}
+    .sub{color:var(--muted);font-size:13px}
+    .actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+    button{border:0;padding:8px 12px;border-radius:8px;cursor:pointer;background:var(--accent);color:#fff;font-weight:600}
+    button.secondary{background:#eef3fb;color:#123}
+
+    .countdown{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;height:100%}
+    .next-title{font-size:18px;font-weight:700}
+    .when{color:var(--muted)}
+    .digits{display:flex;gap:10px;margin-top:8px}
+    .digit{background:linear-gradient(180deg,#ffffff,#f6fbff);border-radius:10px;padding:10px 12px;min-width:72px;text-align:center;box-shadow:0 6px 18px rgba(30,50,90,0.05)}
+    .digit .num{font-size:22px;font-weight:800}
+    .digit .lbl{font-size:12px;color:var(--muted);margin-top:6px}
+    .small{font-size:13px;color:var(--muted)}
+
+    .all-countdowns{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .cd-row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid #f2f6fa}
+
+    footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Mathematics Dept — 4th Year</h1>
+        <p class="lead">Start time for every exam: <strong>1:00 PM (local)</strong></p>
+      </div>
+      <div style="text-align:right">
+        <div class="small">Generated: <span id="nowLabel"></span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin:0 0 8px">Upcoming Exams</h3>
+        <div class="exam-list" id="examList"></div>
+        <div class="actions">
+          <button id="showNext">Show Next Exam</button>
+          <button id="showAll" class="secondary">Show All Countdowns</button>
+        </div>
+      </div>
+
+      <div class="card countdown" id="countdownCard">
+        <div>
+          <div class="next-title" id="nextTitle">Next: —</div>
+          <div class="when" id="nextWhen">—</div>
+        </div>
+
+        <div class="digits" id="digits">
+          <div class="digit">
+            <div class="num" id="days">0</div>
+            <div class="lbl">Days</div>
+          </div>
+          <div class="digit">
+            <div class="num" id="hours">00</div>
+            <div class="lbl">Hours</div>
+          </div>
+          <div class="digit">
+            <div class="num" id="minutes">00</div>
+            <div class="lbl">Minutes</div>
+          </div>
+          <div class="digit">
+            <div class="num" id="seconds">00</div>
+            <div class="lbl">Seconds</div>
+          </div>
+        </div>
+
+        <div style="width:100%">
+          <div class="small" style="margin-top:10px">All exam countdowns</div>
+          <div class="all-countdowns" id="allCountdowns"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Tip: Click any exam in the list to set it as the active countdown.</footer>
+  </div>
+
+  <script>
+    // Exam data list (date format: YYYY-MM-DD), start time assumed 13:00 local time
+    const exams = [
+      {date: '2025-10-29', title: 'Theory of Numbers'},
+      {date: '2025-11-05', title: 'Hydrodynamics'},
+      {date: '2025-11-12', title: 'Partial Differential Equation'},
+      {date: '2025-11-19', title: 'Tensor Analysis'},
+      {date: '2025-11-26', title: 'Functional Analysis'},
+      {date: '2025-11-30', title: 'Discrete Mathematics'},
+      {date: '2025-12-04', title: 'Fuzzy Mathematics'},
+      {date: '2025-12-08', title: 'Topology'},
+      {date: '2025-12-14', title: 'Mathematical Modeling in Biology'}
+    ];
+
+    // build exam list UI
+    const examList = document.getElementById('examList');
+    const allCountdowns = document.getElementById('allCountdowns');
+
+    function formatDateLabel(d){
+      const options = {day:'2-digit', month:'2-digit', year:'numeric'};
+      return d.toLocaleDateString(undefined, options);
+    }
+
+    function toLocalDateTime(dateString){
+      // returns a Date at 13:00 local
+      const [y,m,d] = dateString.split('-').map(Number);
+      return new Date(y, m-1, d, 13, 0, 0);
+    }
+
+    exams.forEach((e, idx) =>{
+      const el = document.createElement('div');
+      el.className = 'exam';
+      el.innerHTML = `<div class='left'><div class='date-bubble'>${formatDateLabel(toLocalDateTime(e.date))}</div><div><div class='title'>${e.title}</div><div class='sub'>Starts: 1:00 PM</div></div></div><div><button data-idx='${idx}' class='secondary'>Set</button></div>`;
+      examList.appendChild(el);
+    });
+
+    // set 'Now' label
+    function refreshNow(){
+      const now = new Date();
+      document.getElementById('nowLabel').textContent = now.toLocaleString();
+    }
+    refreshNow();
+    setInterval(refreshNow, 1000*30);
+
+    // helpers for countdown
+    function getNextIndex(){
+      const now = new Date();
+      for(let i=0;i<exams.length;i++){
+        if(toLocalDateTime(exams[i].date) > now) return i;
+      }
+      return exams.length - 1; // fallback
+    }
+
+    let activeIndex = getNextIndex();
+
+    // render all countdowns small
+    function renderAllCountdowns(){
+      allCountdowns.innerHTML = '';
+      const now = new Date();
+      exams.forEach((e, i)=>{
+        const row = document.createElement('div');
+        row.className = 'cd-row';
+        const target = toLocalDateTime(e.date);
+        const diff = Math.max(0, target - now);
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor(diff / (1000*60*60)) % 24;
+        const m = Math.floor(diff / (1000*60)) % 60;
+        const s = Math.floor(diff / 1000) % 60;
+        row.innerHTML = `<div style='font-weight:600'>${e.title}</div><div>${d}d ${h}h ${m}m ${s}s</div>`;
+        allCountdowns.appendChild(row);
+      });
+    }
+
+    function renderExamListButtons(){
+      document.querySelectorAll('.exam button').forEach(btn=>{
+        btn.addEventListener('click', (ev)=>{
+          activeIndex = Number(ev.currentTarget.dataset.idx);
+          updateActive();
+        });
+      });
+    }
+
+    renderExamListButtons();
+
+    // Countdown update
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const nextTitle = document.getElementById('nextTitle');
+    const nextWhen = document.getElementById('nextWhen');
+
+    function pad(n){return String(n).padStart(2,'0')}
+
+    function updateActive(){
+      const exam = exams[activeIndex];
+      const target = toLocalDateTime(exam.date);
+      nextTitle.textContent = `Next: ${exam.title}`;
+      nextWhen.textContent = `On ${formatDateLabel(target)} at 1:00 PM`;
+    }
+    updateActive();
+
+    function tick(){
+      const now = new Date();
+      const target = toLocalDateTime(exams[activeIndex].date);
+      let diff = Math.max(0, target - now);
+      const d = Math.floor(diff / (1000*60*60*24));
+      diff -= d * (1000*60*60*24);
+      const h = Math.floor(diff / (1000*60*60));
+      diff -= h * (1000*60*60);
+      const m = Math.floor(diff / (1000*60));
+      diff -= m * (1000*60);
+      const s = Math.floor(diff / 1000);
+      daysEl.textContent = d;
+      hoursEl.textContent = pad(h);
+      minutesEl.textContent = pad(m);
+      secondsEl.textContent = pad(s);
+
+      // update small list
+      renderAllCountdowns();
+
+      // if exam is starting now (within 1s) show finished message
+      if(target - now <= 0){
+        nextTitle.textContent = `Exam started: ${exams[activeIndex].title}`;
+        nextWhen.textContent = `Started at 1:00 PM`;
+      }
+    }
+
+    // buttons
+    document.getElementById('showNext').addEventListener('click', ()=>{
+      activeIndex = getNextIndex();
+      updateActive();
+    });
+    document.getElementById('showAll').addEventListener('click', ()=>{
+      activeIndex = -1;
+      // when -1 show aggregate (nearest)
+      const nearest = exams.reduce((acc, e, i)=>{
+        const diff = Math.abs(toLocalDateTime(e.date) - new Date());
+        return diff < acc.diff ? {diff, idx:i} : acc;
+      }, {diff:1e18, idx:0});
+      activeIndex = nearest.idx;
+      updateActive();
+    });
+
+    // initial render and interval
+    renderAllCountdowns();
+    setInterval(tick, 1000);
+    tick();
+  </script>
+</body>
+</html>
