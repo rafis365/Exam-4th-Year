@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honors 4th Year - Exam Countdown</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --secondary: #6c757d;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        .header-section {
+            background: linear-gradient(90deg, var(--primary) 0%, #0d47a1 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .countdown-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .countdown-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .exam-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-date {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .countdown-item {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            min-width: 100px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .countdown-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+        
+        .countdown-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .exam-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .exam-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s;
+        }
+        
+        .exam-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .exam-item:last-child {
+            border-bottom: none;
+        }
+        
+        .exam-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .exam-item-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .exam-item-date {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+        
+        .exam-item-countdown {
+            font-size: 0.85rem;
+            color: var(--info);
+            font-weight: 500;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+        
+        .current-time {
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            display: inline-block;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+        
+        .progress-section {
+            margin-top: 2rem;
+        }
+        
+        .progress {
+            height: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+        
+        @media (max-width: 768px) {
+            .countdown-container {
+                gap: 1rem;
+            }
+            
+            .countdown-item {
+                min-width: 80px;
+                padding: 1rem 0.5rem;
+            }
+            
+            .countdown-value {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .countdown-container {
+                flex-wrap: wrap;
+            }
+            
+            .countdown-item {
+                min-width: 70px;
+            }
+            
+            .countdown-value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="header-section text-center">
+            <h1>Honors 4th Year 2024</h1>
+            <h2>Department of Mathematics</h2>
+            <p class="lead mb-0 mt-3">Exam Countdown Timer</p>
+            <p class="mt-2 mb-0">All exams start at <strong>1:00 PM (local time)</strong></p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="countdown-card text-center">
+                    <div class="exam-title" id="currentExamTitle">Loading...</div>
+                    <div class="exam-date" id="currentExamDate">Loading...</div>
+                    
+                    <div class="countdown-container">
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="days">0</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="hours">00</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="minutes">00</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" id="seconds">00</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Time until exam</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="exam-list">
+                    <h5 class="mb-3">All Exams</h5>
+                    <div id="examList"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="current-time text-center">
+            <i class="fas fa-clock me-2"></i> Current Time: <span id="currentTime">Loading...</span>
+        </div>
+        
+        <div class="footer">
+            <p class="mb-0">Created By Rafis Ahmed</p>
+        </div>
+    </div>
+
+    <script>
+        // Exam data - CORRECTED to 2025 as originally specified
+        const exams = [
+            {date: '2025-10-29', title: 'Theory of Numbers'},
+            {date: '2025-11-05', title: 'Hydrodynamics'},
+            {date: '2025-11-12', title: 'Partial Differential Equation'},
+            {date: '2025-11-19', title: 'Tensor Analysis'},
+            {date: '2025-11-26', title: 'Functional Analysis'},
+            {date: '2025-11-30', title: 'Discrete Mathematics'},
+            {date: '2025-12-04', title: 'Fuzzy Mathematics'},
+            {date: '2025-12-08', title: 'Topology'},
+            {date: '2025-12-14', title: 'Mathematical Modeling in Biology'}
+        ];
+
+        // DOM elements
+        const currentExamTitle = document.getElementById('currentExamTitle');
+        const currentExamDate = document.getElementById('currentExamDate');
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const currentTimeEl = document.getElementById('currentTime');
+        const examListEl = document.getElementById('examList');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+
+        let activeExamIndex = 0;
+
+        // Format date to display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Convert date string to local date time (1:00 PM)
+        function toLocalDateTime(dateString) {
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day, 13, 0, 0);
+        }
+
+        // Find the next upcoming exam
+        function getNextExamIndex() {
+            const now = new Date();
+            for (let i = 0; i < exams.length; i++) {
+                if (toLocalDateTime(exams[i].date) > now) {
+                    return i;
+                }
+            }
+            return exams.length - 1; // Fallback to last exam if all are in the past
+        }
+
+        // Update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            currentTimeEl.textContent = now.toLocaleString();
+        }
+
+        // Render exam list
+        function renderExamList() {
+            examListEl.innerHTML = '';
+            const now = new Date();
+            
+            exams.forEach((exam, index) => {
+                const examItem = document.createElement('div');
+                examItem.className = `exam-item ${index === activeExamIndex ? 'active' : ''}`;
+                
+                const examDate = toLocalDateTime(exam.date);
+                const timeDiff = examDate - now;
+                
+                let countdownText = '';
+                if (timeDiff > 0) {
+                    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    countdownText = `${days}d ${hours}h`;
+                } else {
+                    countdownText = 'Exam passed';
+                }
+                
+                examItem.innerHTML = `
+                    <div class="exam-item-title">${exam.title}</div>
+                    <div class="exam-item-date">${formatDate(exam.date)}</div>
+                    <div class="exam-item-countdown">${countdownText}</div>
+                `;
+                
+                examItem.addEventListener('click', () => {
+                    activeExamIndex = index;
+                    renderExamList();
+                    updateCountdown();
+                });
+                
+                examListEl.appendChild(examItem);
+            });
+        }
+
+        // Update countdown display
+        function updateCountdown() {
+            const now = new Date();
+            const exam = exams[activeExamIndex];
+            const examDate = toLocalDateTime(exam.date);
+            
+            // Update exam title and date
+            currentExamTitle.textContent = exam.title;
+            currentExamDate.textContent = `${formatDate(exam.date)} at 1:00 PM`;
+            
+            // Calculate time difference
+            let timeDiff = examDate - now;
+            
+            if (timeDiff <= 0) {
+                // Exam has passed or is happening now
+                daysEl.textContent = '0';
+                hoursEl.textContent = '00';
+                minutesEl.textContent = '00';
+                secondsEl.textContent = '00';
+                
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                
+                if (timeDiff > -3600000) { // Within 1 hour of start time
+                    currentExamTitle.innerHTML = `${exam.title} <span class="badge bg-warning">In Progress</span>`;
+                } else {
+                    currentExamTitle.innerHTML = `${exam.title} <span class="badge bg-secondary">Completed</span>`;
+                }
+                
+                return;
+            }
+            
+            // Calculate days, hours, minutes, seconds
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            timeDiff -= days * (1000 * 60 * 60 * 24);
+            
+            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            timeDiff -= hours * (1000 * 60 * 60);
+            
+            const minutes = Math.floor(timeDiff / (1000 * 60));
+            timeDiff -= minutes * (1000 * 60);
+            
+            const seconds = Math.floor(timeDiff / 1000);
+            
+            // Update countdown display
+            daysEl.textContent = days;
+            hoursEl.textContent = hours.toString().padStart(2, '0');
+            minutesEl.textContent = minutes.toString().padStart(2, '0');
+            secondsEl.textContent = seconds.toString().padStart(2, '0');
+            
+            // Update progress bar (based on time until next exam)
+            const nextExamIndex = getNextExamIndex();
+            const nextExamDate = toLocalDateTime(exams[nextExamIndex].date);
+            const totalTime = nextExamDate - now;
+            const timeUntilCurrent = examDate - now;
+            
+            if (totalTime > 0) {
+                const progress = Math.max(0, 100 - (timeUntilCurrent / totalTime) * 100);
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${Math.round(progress)}%`;
+            }
+        }
+
+        // Initialize the application
+        function init() {
+            activeExamIndex = getNextExamIndex();
+            updateCurrentTime();
+            renderExamList();
+            updateCountdown();
+            
+            // Update current time every second
+            setInterval(updateCurrentTime, 1000);
+            
+            // Update countdown every second
+            setInterval(updateCountdown, 1000);
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
